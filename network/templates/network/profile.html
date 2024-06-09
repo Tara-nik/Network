@@ -1,0 +1,53 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+   <div class="container mt-4">
+       <h2>{{ viewed_user.username }}'s Profile</h2>
+
+       <p id="followers-count">Followers: {{ followers_count }} | Following: {{ following_count }}</p>
+        {% if not is_own_profile %}
+            {% if is_following %}
+                <form method="post" action="{% url 'unfollow' viewed_user.username %}" id="followForm">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-danger" name="follow_toggle" value="Unfollow">
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'follow' viewed_user.username %}" id="followForm">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" name="follow_toggle" value="Follow">
+                </form>
+            {% endif %}
+
+        {% endif %}
+
+       <h3>Posts</h3>
+
+       {% if user_posts %}
+           <ul class="list-group">
+           {% for post in user_posts %}
+               <li class="list-group-item">
+                   <p>{{ post.content }}</p>
+                   <small>Posted by {{ post.writer.username }} on {{ post.timestamp }}</small><br>
+                   <button class="likeButton" data-post-id="{{ post.id }}">
+                       {% if user in post.likes.all %}Unlike{% else %}Like{% endif %}
+                       <span class='l_num' data-post-id='{{ post.id }}'> {{ post.likes.count }}</span>
+                   </button>
+                   {% if user.is_authenticated and user == post.writer %}
+                       <button class="edit-btn" data-post-id="{{ post.id }}">Edit</button>
+                   {% endif %}
+
+
+               </li>
+           {% endfor %}
+
+           </ul>
+       {% else %}
+           <p>No posts yet.</p>
+       {% endif %}
+   </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/profile.js' %}"></script>
+{% endblock %}

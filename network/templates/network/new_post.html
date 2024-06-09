@@ -1,0 +1,18 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+    <h2>New Post</h2>
+        <form method="post" action="{% url 'new_post' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit Post</button>
+        </form>
+    <a href="{% url 'all_posts' %}">Back to All Posts</a>
+{% endblock %}
+{% block script %}
+
+    <script src="{% static 'network/new_post.js' %}"></script>
+
+{% endblock %}

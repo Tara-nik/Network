@@ -1,0 +1,38 @@
+{% extends "network/layout.html" %}
+{% load static %}
+{% block body %}
+    <h1>Following Posts</h1>
+
+    {% for post in following_posts %}
+        <div class="post" id="post-{{ post.id }}">
+            <p><a href="{% url 'profile' username=post.writer.username %}">{{ post.writer.username }}</a> - {{ post.timestamp }}</p>
+            <p id="post-content-{{ post.id }}">{{ post.content }}</p>
+            <button class="likeButton" data-post-id="{{ post.id }}">
+                {% if request.user in post.likes.all %}Unlike{% else %}Like{% endif %}
+                <span class='l_num' data-post-id='{{ post.id }}'> {{ post.likes.count }}</span>
+            </button>
+        </div>
+    {% endfor %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if following_posts.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ following_posts.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ following_posts.number }} of {{ following_posts.paginator.num_pages }}.
+            </span>
+
+            {% if following_posts.has_next %}
+                <a href="?page={{ following_posts.next_page_number }}">next</a>
+                <a href="?page={{ following_posts.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/all_post.js' %}"></script>
+{% endblock %}

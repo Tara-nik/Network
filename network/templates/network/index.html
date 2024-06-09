@@ -1,0 +1,57 @@
+{% extends "network/layout.html" %}
+{% load static %}
+{% block body %}
+    <h2>All Posts</h2>
+    {% if user.is_authenticated%}
+        <h6>New Post: </h6>
+        <form  id="new" method="post" action="{% url 'new_post' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">New Post</button>
+        </form>
+    {% endif %}
+
+
+    {% for post in posts %}
+        <div class="post" id="post-{{ post.id }}">
+            <h6><a href="{% url 'profile' username=post.writer.username %}">{{ post.writer.username }}</a> says :</h6>
+<!--            <p><a href="{% url 'profile' username=post.writer.username %}">{{ post.writer.username }}</a>- {{ post.timestamp }}</p>-->
+            <div  id="post-content-{{ post.id }}">{{ post.content }}</div>
+            <p>{{ post.timestamp }}</p>
+            <button class="likeButton" data-post-id="{{ post.id }}">
+                {% if user in post.likes.all %}Unlike{% else %}Like{% endif %}
+                <span class='l_num' data-post-id='{{ post.id }}'> {{ post.likes.count }}</span>
+            </button>
+            {% if user.is_authenticated and user == post.writer %}
+                <button class="edit-btn" data-post-id="{{ post.id }}">Edit</button>
+                <div id="edit-form-{{ post.id }}" style="display: none;">
+                    <form id="form-{{ post.id }}">
+                        {% csrf_token %}
+                        <textarea name="content" rows="5" cols="50" required>{{ post.content }}</textarea><br>
+                        <input type="button" value="Save" onclick="submitForm('{{ post.id }}')">
+                        <button type="button" onclick="cancelEdit('{{ post.id }}')">Cancel</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if posts.has_previous %}
+                <a href="?page={{ posts.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+            </span>
+
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="{% static 'network/all_post.js' %}"></script>
+{% endblock %}
